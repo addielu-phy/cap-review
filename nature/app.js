@@ -27,6 +27,7 @@ function cloudInit() { if (cloudOn() && !firebase.apps.length) firebase.initiali
 function cloudPayload(att, name) {
   return {
     name: name, mode: att.mode, attemptNo: att.n,
+    quiz: (typeof QUIZ_META !== "undefined" && QUIZ_META.quizId) || "",
     score: att.score, correct: att.correct, total: att.total,
     ids: att.ids, wrongIds: att.wrongIds, durationSec: att.durationSec,
     clientTime: att.date

@@ -1,19 +1,19 @@
 /* ===========================================================
    雲端設定（Firebase）— 老師端集中收集全班成績用
    -----------------------------------------------------------
-   還沒設定前，enabled 維持 false：學生網站照常運作（成績只存本機），
-   老師後台會顯示「尚未設定雲端」。
-   設定步驟見 FIREBASE_SETUP.md。完成後把下面填好、並將 enabled 改成 true。
+   專案：cap-review（cap-review-c2f24）／老師登入 Email：cylcphychem@gmail.com
+   已啟用：學生每次交卷（隨手練習＋正式測驗）會上傳到 Firestore，
+   老師以上述 Email 登入 teacher.html 即可看全班成績。
    =========================================================== */
 window.CLOUD = {
-  enabled: false,                 // ← 設定完成後改成 true
-  teacherEmail: "",               // ← 老師登入用的 Email（也要寫進 Firestore 安全規則）
+  enabled: true,
+  teacherEmail: "cylcphychem@gmail.com",   // 須與 Firestore 安全規則中的 Email 一致
   config: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyDo_v6NF4lkmd-WEe6CVvweth4Y-O1-kv0",
+    authDomain: "cap-review-c2f24.firebaseapp.com",
+    projectId: "cap-review-c2f24",
+    storageBucket: "cap-review-c2f24.firebasestorage.app",
+    messagingSenderId: "875329911054",
+    appId: "1:875329911054:web:e446db5ea5f663a0ce3f5f"
   }
 };

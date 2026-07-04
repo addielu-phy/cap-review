@@ -72,7 +72,12 @@ let ROWS = [];
 function loadData(user) {
   app.innerHTML = `<div class="card center"><p>讀取全班成績中…</p></div>`;
   DB.collection("results").orderBy("ts", "desc").get()
-    .then(snap => { ROWS = snap.docs.map(d => d.data()); renderDash(user); })
+    .then(snap => {
+      const qid = (typeof QUIZ_META !== "undefined" && QUIZ_META.quizId) || "";
+      // 同一 Firebase 專案可能收多個科目；只顯示本科（未標記 quiz 的舊資料一律歸入本科）
+      ROWS = snap.docs.map(d => d.data()).filter(r => !qid || !r.quiz || r.quiz === qid);
+      renderDash(user);
+    })
     .catch(e => {
       app.innerHTML = `<div class="card"><h3>讀取失敗</h3>
         <p class="chip bad">${e.code || e.message}</p>
