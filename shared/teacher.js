@@ -130,6 +130,16 @@ function render(){
     <div class="card"><h3>👩‍🎓 學生列表</h3><table><tr><th>學生</th><th class="right">次數</th><th class="right">最佳</th><th class="right">最近</th><th>最近作答</th></tr>${studentRows}</table></div>
     <div class="foot">${dataSource === "cloud" ? "資料來源：Firebase Firestore。" : "教師版資料只存於此瀏覽器 localStorage。"}</div>`;
 }
+function authErrorMessage(e){
+  const code = e && e.code ? e.code : "";
+  if(code === "auth/invalid-credential" || code === "auth/wrong-password" || code === "auth/user-not-found"){
+    return "Email/密碼無法登入：Firebase 目前沒有這組帳號密碼，或密碼不正確。請按「寄送/重設密碼信」後到信箱設定密碼，或改用 Google 登入。";
+  }
+  if(code === "auth/operation-not-allowed") return "此 Firebase 專案尚未啟用這種登入方式。請到 Firebase Authentication 啟用 Google 或 Email/Password。";
+  if(code === "auth/unauthorized-domain") return "此網域尚未加入 Firebase Authentication 授權網域，請在 Authorized domains 加入 addielu-phy.github.io。";
+  if(code === "auth/popup-blocked" || code === "auth/popup-closed-by-user") return "彈出式登入被瀏覽器阻擋，請改用 Google 重新導向登入。";
+  return `${code || "登入失敗"}${e && e.message ? `：${e.message}` : ""}`;
+}
 function renderLogin(msg=""){
   const teacher=CLOUD.teacherEmail || "老師 Google/Email 帳號";
   app.innerHTML = `
@@ -137,28 +147,33 @@ function renderLogin(msg=""){
     <div class="card">
       ${msg ? `<p class="chip bad">${esc(msg)}</p>` : ""}
       <p class="muted small">請用老師帳號登入：<b>${esc(teacher)}</b>。登入後會讀取 Firebase Firestore 的全班紀錄。</p>
-      <div class="row"><button class="btn primary" onclick="doGoogleLogin()">使用 Google 登入</button></div>
+      <div class="row"><button class="btn primary" onclick="doGoogleLogin()">使用 Google 登入（手機推薦）</button><button class="btn ghost" onclick="useLocalFallback()">改用本機匯入模式</button></div>
       <hr style="border:none;border-top:1px solid var(--line);margin:18px 0">
       <label class="lbl">Email / 密碼登入</label>
       <input type="email" id="em" placeholder="teacher@example.com" autocomplete="username" value="${CLOUD.teacherEmail ? esc(CLOUD.teacherEmail) : ""}">
       <div style="height:10px"></div>
       <input type="password" id="pw" placeholder="Firebase Authentication 密碼" autocomplete="current-password" onkeydown="if(event.key==='Enter')doEmailLogin()">
-      <div style="height:12px"></div><button class="btn" onclick="doEmailLogin()">Email 登入</button>
-      <p class="muted small">若 Google 登入顯示 provider 未啟用，請改用 Email/Password，或到 Firebase Authentication 啟用 Google provider。</p>
+      <div style="height:12px"></div><div class="row"><button class="btn" onclick="doEmailLogin()">Email 登入</button><button class="btn ghost" onclick="sendTeacherPasswordReset()">寄送/重設密碼信</button></div>
+      <p class="muted small">若看到 <code>auth/invalid-credential</code>，通常是 Firebase 還沒有替此 Email 建立密碼，或密碼輸入錯誤；請先寄送密碼信，或直接使用 Google 登入。</p>
     </div>`;
 }
 window.doGoogleLogin=function(){
   const provider=new firebase.auth.GoogleAuthProvider();
-  firebase.auth().signInWithPopup(provider).catch(e => {
-    if(String(e.code || "").includes("popup")) return firebase.auth().signInWithRedirect(provider);
-    renderLogin(`Google 登入失敗：${e.code || e.message}`);
-  });
+  if(CLOUD.teacherEmail) provider.setCustomParameters({login_hint:CLOUD.teacherEmail});
+  firebase.auth().signInWithRedirect(provider).catch(e => renderLogin(`Google 登入失敗：${authErrorMessage(e)}`));
 };
 window.doEmailLogin=function(){
   const em=document.getElementById("em").value.trim();
   const pw=document.getElementById("pw").value;
   if(!em || !pw){alert("請輸入 Email 與密碼"); return;}
-  firebase.auth().signInWithEmailAndPassword(em, pw).catch(e => renderLogin(`Email 登入失敗：${e.code || e.message}`));
+  firebase.auth().signInWithEmailAndPassword(em, pw).catch(e => renderLogin(`Email 登入失敗：${authErrorMessage(e)}`));
+};
+window.sendTeacherPasswordReset=function(){
+  const em=(document.getElementById("em")?.value || CLOUD.teacherEmail || "").trim();
+  if(!em){alert("請先輸入老師 Email"); return;}
+  firebase.auth().sendPasswordResetEmail(em, {url: location.href}).then(() => {
+    renderLogin(`已寄出密碼設定/重設信到 ${em}。請到信箱點連結設定密碼後，再回來用 Email 登入；也可直接用 Google 登入。`);
+  }).catch(e => renderLogin(`密碼信寄送失敗：${authErrorMessage(e)}`));
 };
 window.doLogout=function(){firebase.auth().signOut();};
 async function loadCloudRows(user){
@@ -203,8 +218,10 @@ window.exportCSV = function(){
 installTheme();
 if(cloudOn()){
   cloudInit();
+  let redirectError = "";
+  firebase.auth().getRedirectResult().catch(e => { redirectError = authErrorMessage(e); renderLogin(`Google 登入失敗：${redirectError}`); });
   firebase.auth().onAuthStateChanged(user => {
-    if(!user){renderLogin(); return;}
+    if(!user){if(!redirectError) renderLogin(); return;}
     if(CLOUD.teacherEmail && user.email !== CLOUD.teacherEmail){const mail=user.email; firebase.auth().signOut().finally(()=>renderLogin(`此帳號（${mail}）不是授權老師帳號。`)); return;}
     loadCloudRows(user);
   });
