@@ -1,5 +1,5 @@
 /* 114 CAP Science self-study quiz data. Source screenshots are the audit source of truth. */
-window.CLOUD = { enabled: false, teacherEmail: "", config: {} };
+window.CLOUD = window.CLOUD || { enabled: false, teacherEmail: "", config: {} };
 window.QUIZ = {
   "id": "cap-114-science",
   "siteTitle": "會考複習自學平台",

@@ -26,16 +26,59 @@ function updateProfile(name, fn){const db=loadDB();if(!db.profiles[name]) db.pro
 
 function cloudOn(){return !!(window.CLOUD && CLOUD.enabled && window.firebase && CLOUD.config && CLOUD.config.projectId);}
 function cloudInit(){if(cloudOn() && !firebase.apps.length) firebase.initializeApp(CLOUD.config);}
+function pendingKey(){return `${STORE}_pending_cloud`;}
+function cloudStatus(txt, cls){const el=document.getElementById("cloudStatus"); if(el){el.textContent=txt; el.className=`chip ${cls||""}`.trim();}}
+function cloudPayload(att, name){
+  return {
+    name,
+    mode: att.mode,
+    attemptNo: att.attemptNo || null,
+    quiz: QUIZ.id,              // 舊版教師端相容欄位
+    quizId: QUIZ.id,
+    quizTitle: QUIZ.title,
+    subject: QUIZ.subject,
+    score: att.score,
+    correct: att.correct,
+    total: att.total,
+    ids: att.ids || [],
+    answers: att.answers || {},
+    wrongIds: att.wrongIds || [],
+    durationSec: att.durationSec || 0,
+    clientTime: att.date || Date.now(),
+    date: att.date || Date.now(),
+    source: "cap-review-pages"
+  };
+}
+function getPending(){try{return JSON.parse(localStorage.getItem(pendingKey())) || [];}catch(e){return [];}}
+function setPending(list){localStorage.setItem(pendingKey(), JSON.stringify(list));}
+async function cloudSendOne(payload){
+  cloudInit();
+  await firebase.firestore().collection("results").add(Object.assign({}, payload, {
+    ts: firebase.firestore.FieldValue.serverTimestamp()
+  }));
+}
+async function flushPendingCloud(){
+  if(!cloudOn()) return;
+  const list=getPending();
+  if(!list.length) return;
+  const remain=[];
+  for(const p of list){try{await cloudSendOne(p);}catch(e){remain.push(p);}}
+  setPending(remain);
+  if(!remain.length) cloudStatus("✓ 已補傳暫存紀錄", "good");
+}
 async function cloudPush(att, name){
   if(!cloudOn()) return;
+  const payload=cloudPayload(att, name);
+  cloudStatus("雲端上傳中…", "");
   try{
-    cloudInit();
-    await firebase.firestore().collection("results").add(Object.assign({}, att, {
-      name, quizId: QUIZ.id, quizTitle: QUIZ.title, subject: QUIZ.subject,
-      ts: firebase.firestore.FieldValue.serverTimestamp()
-    }));
-    const el=document.getElementById("cloudStatus"); if(el){el.textContent="✓ 已上傳老師端";el.className="chip good";}
-  }catch(e){console.warn("cloud push failed", e); const el=document.getElementById("cloudStatus"); if(el){el.textContent="雲端未連線，已保存在本機";el.className="chip warn";}}
+    await flushPendingCloud();
+    await cloudSendOne(payload);
+    cloudStatus("✓ 已上傳老師端（跨裝置可見）", "good");
+  }catch(e){
+    console.warn("cloud push failed", e);
+    const list=getPending(); list.push(payload); setPending(list);
+    cloudStatus("雲端暫時失敗，已存在本機待補傳", "warn");
+  }
 }
 
 function installTheme(){
@@ -73,7 +116,7 @@ function viewLogin(){
     <div class="brand"><div class="logo">會</div><div><h1>${esc(QUIZ.siteTitle || "會考複習自學平台")}</h1><div class="sub">${esc(QUIZ.title)}・${esc(QUIZ.subject)}</div></div></div>
     <div class="card">
       <h3>歡迎！先登錄你的名字</h3>
-      <p class="muted small">成績會先存在這台裝置；可用「匯出紀錄」交給老師匯入教師版。若日後設定 Firebase，也能自動上傳老師端。</p>
+      <p class="muted small">成績會先存在這台裝置；若雲端已啟用，交卷後會自動同步到老師端，老師可跨手機/電腦/不同主機查看。</p>
       <label class="lbl" for="nm">你的名字 / 暱稱</label>
       <input id="nm" maxlength="24" placeholder="例如：小明" onkeydown="if(event.key==='Enter')startLogin()">
       <div style="height:12px"></div><button class="btn primary block" onclick="startLogin()">開始練習 →</button>
@@ -109,7 +152,7 @@ function viewDashboard(name){
       <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','practice')"><div class="mi">⚡</div><div class="mt">隨手練習</div><div class="md">隨機出題，選完立即看正解與詳解。</div></button>
       <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','full')"><div class="mi">📝</div><div class="mt">正式測驗</div><div class="md">整卷作答，最後一次評分與單元診斷。</div></button>
       <button class="modecard" ${wrong.length?`onclick="startMode('${encodeURIComponent(name)}','wrong')"`:"disabled"}><div class="mi">🎯</div><div class="mt">錯題練習</div><div class="md">${wrong.length?`練最近錯的 ${wrong.length} 題。`:"先完成一次練習就會出現錯題。"}</div></button>
-    </div><div style="height:12px"></div><button class="btn sm" onclick="exportProfile('${encodeURIComponent(name)}')">⬇️ 匯出我的練習紀錄給老師</button> <span id="cloudStatus" class="chip ${cloudOn()?"":"warn"}">${cloudOn()?"雲端已設定":"本機保存模式"}</span></div>
+    </div><div style="height:12px"></div><button class="btn sm" onclick="exportProfile('${encodeURIComponent(name)}')">⬇️ 匯出我的練習紀錄給老師</button> <span id="cloudStatus" class="chip ${cloudOn()?"good":"warn"}">${cloudOn()?"雲端同步已啟用":"本機保存模式"}</span></div>
     ${weak}<div class="card"><h3>練習紀錄 <span class="muted small">${atts.length}次</span></h3>${hist}</div>
     <div class="foot"><a href="teacher.html">教師版入口</a> · <a href="../../index.html">系列首頁</a></div>`;
 }
@@ -163,3 +206,4 @@ window.exportProfile=function(enc){
 
 installTheme();
 viewLogin();
+if(cloudOn()) flushPendingCloud();
