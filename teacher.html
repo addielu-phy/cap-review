@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1420">
+<title>教師總覽｜會考複習自學平台</title>
+<meta name="description" content="會考複習自學平台教師總覽：彙整自然、國文等科目的學生端與教師端入口。">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="hub.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <span class="kicker">教師總覽 · Firebase 雲端後台</span>
+      <h1>會考複習 <span class="grad">教師工作台</span></h1>
+      <p>這裡彙整所有已上線科目的學生練習入口與教師後台。教師端使用同一個 Firebase 專案收資料，依科目 <code>quizId</code> 分開統計，可跨手機、電腦與不同主機查看。</p>
+    </div>
+
+    <div class="subjects">
+      <a class="subj live" href="science/114/teacher.html">
+        <div class="top"><div class="ico" style="background:linear-gradient(135deg,#2bb673,#7cc950)">自</div><div><div class="nm">自然科教師後台</div><div class="en">cap-114-science · Firebase</div></div></div>
+        <div class="desc">查看 114 會考自然科全班紀錄、最常錯題、單元弱點、學生列表與 CSV 匯出。</div>
+        <div class="meta"><span class="chip unit">教師端</span><span class="chip">50 題</span><span class="chip">雲端同步</span></div>
+        <div class="foot-row"><span class="badge-live">✓ 已上線</span><span class="go">開啟後台 →</span></div>
+      </a>
+
+      <a class="subj live" href="chinese/114/teacher.html">
+        <div class="top"><div class="ico" style="background:linear-gradient(135deg,#fc6a86,#ff9a6b)">國</div><div><div class="nm">國文科教師後台</div><div class="en">cap-114-chinese · Firebase</div></div></div>
+        <div class="desc">查看 114 會考國文科全班紀錄、題組閱讀錯題、語文單元弱點、學生列表與 CSV 匯出。</div>
+        <div class="meta"><span class="chip unit">教師端</span><span class="chip">42 題</span><span class="chip">雲端同步</span></div>
+        <div class="foot-row"><span class="badge-live">✓ 已上線</span><span class="go">開啟後台 →</span></div>
+      </a>
+
+      <a class="subj live" href="science/114/">
+        <div class="top"><div class="ico" style="background:linear-gradient(135deg,#2bb673,#7cc950)">自</div><div><div class="nm">自然科學生端</div><div class="en">Student Practice</div></div></div>
+        <div class="desc">給學生作答、練錯題、查看詳解，交卷後自動上傳老師端。</div>
+        <div class="meta"><span class="chip">學生端</span><span class="chip">50 題</span></div>
+        <div class="foot-row"><span class="go">開始練習 →</span></div>
+      </a>
+
+      <a class="subj live" href="chinese/114/">
+        <div class="top"><div class="ico" style="background:linear-gradient(135deg,#fc6a86,#ff9a6b)">國</div><div><div class="nm">國文科學生端</div><div class="en">Student Practice</div></div></div>
+        <div class="desc">給學生作答、練錯題、查看考點提示，交卷後自動上傳老師端。</div>
+        <div class="meta"><span class="chip">學生端</span><span class="chip">42 題</span></div>
+        <div class="foot-row"><span class="go">開始練習 →</span></div>
+      </a>
+    </div>
+
+    <div class="info-card">
+      <h3>教師端登入提醒</h3>
+      <ul>
+        <li>教師後台會要求 Firebase Auth 登入；目前設定的老師 Email 是 <code>cylcphychem@gmail.com</code>。</li>
+        <li>學生端不需要登入；只會新增自己的作答紀錄，不能讀取全班資料。</li>
+        <li>若雲端暫時失敗，學生端會先保存在本機，下次開頁補傳。</li>
+      </ul>
+    </div>
+
+    <div class="foot"><a href="index.html">← 回學生科目首頁</a></div>
+  </div>
+  <script src="theme.js"></script>
+</body>
+</html>
