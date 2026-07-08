@@ -8,6 +8,7 @@
 | 科目 | 狀態 | 路徑 | 題數 |
 |------|------|------|------|
 | 自然 | ✅ 已上線 | [`science/114/`](science/114/) | 114 年會考 50 題（生物・理化・地科） |
+| 自然暑期版 | ✅ 已上線 | [`science/114-summer/`](science/114-summer/) | 114 年會考精選 30 題（國一＋國二，排除國三理化・地科・天文） |
 | 國文 | ✅ 已上線 | [`chinese/114/`](chinese/114/) | 114 年會考 42 題（單題＋題組閱讀） |
 | 英語 | 🚧 規劃中 | `english/` | — |
 | 數學 | 🚧 規劃中 | `math/` | — |
@@ -17,6 +18,8 @@
 - 教師總覽：`teacher.html`
 - 學生端（自然）：`science/114/index.html`
 - 老師後台（自然）：`science/114/teacher.html`
+- 學生端（自然暑期版）：`science/114-summer/index.html`
+- 老師後台（自然暑期版）：`science/114-summer/teacher.html`
 - 學生端（國文）：`chinese/114/index.html`
 - 老師後台（國文）：`chinese/114/teacher.html`
 
@@ -35,6 +38,12 @@ site/
 │   ├── firebase-config.js
 │   ├── data.js         # ★ 題庫（window.QUIZ + 50 題）
 │   └── assets/         # 原題截圖
+├── science/114-summer/ # 自然科暑期版（國一＋國二範圍，重用 science/114/assets）
+│   ├── index.html      # 學生端
+│   ├── teacher.html    # 老師後台
+│   ├── firebase-config.js
+│   ├── data.js         # ★ 題庫（window.QUIZ + 30 題）
+│   └── README.md       # 篩選規則與題號
 ├── chinese/114/        # 國文科（共用 shared/ quiz app）
 │   ├── index.html      # 學生端
 │   ├── teacher.html    # 老師後台
@@ -67,7 +76,7 @@ site/
 
 ## 老師後台（選配）
 
-目前 `science/114/` 與 `chinese/114/` 均使用 Firebase 專案 `cap-review-c2f24`，學生端交卷後寫入 Firestore `results` 集合，教師端依 `quizId` 分科過濾。老師 Email 設定於各科 `firebase-config.js`。
+目前 `science/114/`、`science/114-summer/` 與 `chinese/114/` 均使用 Firebase 專案 `cap-review-c2f24`，學生端交卷後寫入 Firestore `results` 集合，教師端依 `quizId` 分科／分版本過濾。老師 Email 設定於各科 `firebase-config.js`。
 
 ---
 題目來源為國中教育會考官方公開歷屆試題（cap.rcpet.edu.tw），僅供教育自學用途。
