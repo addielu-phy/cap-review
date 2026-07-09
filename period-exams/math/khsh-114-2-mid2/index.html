@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0e1420">
-<title>高一數學段考逐題詳解｜高師大附中 114-2 第二次段考</title>
-<meta name="description" content="高師大附中 114 學年度第二學期第二次段考，高中部一年級數學科逐題詳細解說。含原題截圖、答案表、觀念整理與步驟推導。">
+<title>高一數學段考自學練習｜高師大附中 114-2 第二次段考</title>
+<meta name="description" content="高師大附中 114 學年度第二學期第二次段考，高中部一年級數學科自學練習。先看題目、隱藏答案，一鍵顯示詳解並可標記答對答錯，支援錯題練習。">
 <link rel="stylesheet" href="../../../style.css">
 <link rel="stylesheet" href="solution.css">
 <script>
@@ -18,28 +18,34 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
 </head>
 <body>
   <div class="solution-wrap">
-    <nav class="crumb"><a href="../../../index.html">會考自學平台首頁</a><span>›</span><span>高中段考詳解</span><span>›</span><span>高一數學</span></nav>
+    <nav class="crumb"><a href="../../../index.html">會考自學平台首頁</a><span>›</span><span>高中段考練習</span><span>›</span><span>高一數學</span></nav>
 
     <header class="solution-hero">
-      <span class="kicker">高中數學 · 段考逐題詳解</span>
-      <h1>高師大附中 114-2 第二次段考<br><span class="grad">高一數學逐題詳細解說</span></h1>
-      <p>依原試卷與答案卷整理，共 16 個題組／小題。每題保留原題截圖，並補上觀念、公式、計算步驟與容易誤判的地方，方便學生自學或老師投影講解。</p>
+      <span class="kicker">高中數學 · 段考自學練習</span>
+      <h1>高師大附中 114-2 第二次段考<br><span class="grad">高一數學題目＋錯題練習</span></h1>
+      <p>先看原題截圖作答，答案與詳解預設隱藏；想對答案時可單題顯示，或一鍵顯示目前題目的答案。顯示後標記答對／答錯，系統會在本機統計錯題，之後可切換「只練錯題」。</p>
       <div class="hero-actions">
-        <a class="primary-btn" href="#questions">開始看詳解</a>
+        <a class="primary-btn" href="#questions">開始練習</a>
         <a class="ghost-btn" href="https://drive.google.com/file/d/16NUTP3KCZLxDX2zXZi_79ARlT_35vTj6/view?usp=drive_web" target="_blank" rel="noopener">原始 PDF</a>
       </div>
       <div class="stats" id="stats"></div>
     </header>
 
-    <section class="panel">
+    <section class="panel practice-panel">
       <div class="panel-head">
         <div>
-          <h2>答案速查</h2>
-          <p>先看答案，再點題號跳到完整詳解。</p>
+          <h2>練習控制台</h2>
+          <p>答案不會一開始出現。先自己算，再按「顯示答案與詳解」核對。</p>
         </div>
-        <button class="mini-btn" id="toggleAll" type="button">收合全部詳解</button>
       </div>
-      <div class="answer-grid" id="answerGrid"></div>
+      <div class="practice-stats" id="practiceStats"></div>
+      <div class="practice-actions">
+        <button class="mini-btn primary-mini" id="showVisibleAnswers" type="button">一鍵顯示目前題目的答案</button>
+        <button class="mini-btn" id="hideAllAnswers" type="button">全部隱藏答案</button>
+        <button class="mini-btn" id="wrongOnlyBtn" type="button" aria-pressed="false">只練錯題</button>
+        <button class="mini-btn danger-mini" id="resetProgress" type="button">清除練習紀錄</button>
+      </div>
+      <div class="progress-grid" id="progressGrid"></div>
     </section>
 
     <section class="panel tools" aria-label="搜尋與篩選">
@@ -68,7 +74,7 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
     </section>
 
     <footer class="solution-foot">
-      <p>題目來源：使用者提供之 Google Drive PDF（高師大附中 114 學年度第二學期第二次段考高一數學試卷與答案卷）。本頁供教育自學與解題講解使用。</p>
+      <p>題目來源：使用者提供之 Google Drive PDF（高師大附中 114 學年度第二學期第二次段考高一數學試卷與答案卷）。練習紀錄只存在本機瀏覽器 localStorage，不會上傳雲端。</p>
       <p><a href="../../../index.html">← 回首頁</a></p>
     </footer>
   </div>
@@ -82,15 +88,67 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
   <script>
   const questions = window.EXAM_QUESTIONS || [];
   const meta = window.EXAM_META || {};
+  const storageKey = 'khsh-114-2-mid2-progress-v2';
+  const revealed = new Set();
+  let progress = loadProgress();
+  let wrongOnly = false;
   const $ = (sel) => document.querySelector(sel);
+  const $$ = (sel) => [...document.querySelectorAll(sel)];
   const stripHtml = (html) => String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function loadProgress(){
+    try {
+      const parsed = JSON.parse(localStorage.getItem(storageKey) || '{}');
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (err) {
+      return {};
+    }
+  }
+
+  function saveProgress(){
+    try { localStorage.setItem(storageKey, JSON.stringify(progress)); } catch (err) {}
+  }
+
+  function progressOf(id){
+    const raw = progress[id] || {};
+    return {
+      correct: Number(raw.correct || 0),
+      wrong: Number(raw.wrong || 0),
+      last: raw.last === 'correct' || raw.last === 'wrong' ? raw.last : '',
+      lastAt: raw.lastAt || ''
+    };
+  }
+
+  function isWrong(id){ return progressOf(id).last === 'wrong'; }
+  function statusText(id){
+    const p = progressOf(id);
+    if (p.last === 'correct') return `最近答對｜對 ${p.correct} / 錯 ${p.wrong}`;
+    if (p.last === 'wrong') return `錯題｜對 ${p.correct} / 錯 ${p.wrong}`;
+    return '尚未標記';
+  }
 
   function renderStats(){
     $('#stats').innerHTML = `
       <span>${meta.school || '高師大附中'}</span>
       <span>${meta.grade || '高一'}</span>
       <span>${questions.length} 題組</span>
-      <span>原題截圖 + 詳解</span>`;
+      <span>答案隱藏・錯題練習</span>`;
+  }
+
+  function renderPracticeStats(){
+    const records = questions.map(q => progressOf(q.id));
+    const attempted = records.filter(r => r.last).length;
+    const latestCorrect = records.filter(r => r.last === 'correct').length;
+    const latestWrong = records.filter(r => r.last === 'wrong').length;
+    const totalCorrect = records.reduce((sum, r) => sum + r.correct, 0);
+    const totalWrong = records.reduce((sum, r) => sum + r.wrong, 0);
+    const accuracy = attempted ? Math.round(latestCorrect / attempted * 100) : 0;
+    $('#practiceStats').innerHTML = `
+      <div><b>${attempted}</b><span>已標記題數</span></div>
+      <div><b>${latestCorrect}</b><span>目前答對</span></div>
+      <div><b>${latestWrong}</b><span>目前錯題</span></div>
+      <div><b>${accuracy}%</b><span>目前正確率</span></div>
+      <div><b>${totalCorrect}/${totalWrong}</b><span>累積對/錯</span></div>`;
   }
 
   function renderFilters(){
@@ -100,17 +158,19 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
     $('#unitFilter').innerHTML += unitSet.map(v => `<option value="${v}">${v}</option>`).join('');
   }
 
-  function renderAnswerGrid(){
-    $('#answerGrid').innerHTML = questions.map(q => `
-      <a class="answer-chip" href="#${q.id}">
+  function renderProgressGrid(){
+    $('#progressGrid').innerHTML = questions.map(q => `
+      <a class="progress-chip" href="#${q.id}" data-chip="${q.id}">
         <b>${q.label}</b>
-        <span>${q.answer}</span>
+        <span>${statusText(q.id)}</span>
       </a>`).join('');
   }
 
   function card(q, idx){
+    const p = progressOf(q.id);
+    const statusClass = p.last ? ` is-${p.last}` : '';
     return `
-      <article class="q-card" id="${q.id}" data-type="${q.type}" data-unit="${q.unit}" data-search="${(q.label+' '+q.type+' '+q.unit+' '+q.answer+' '+stripHtml(q.explanation)).toLowerCase()}">
+      <article class="q-card${statusClass}" id="${q.id}" data-id="${q.id}" data-type="${q.type}" data-unit="${q.unit}" data-search="${(q.id+' '+q.label+' '+q.type+' '+q.unit+' '+q.answer+' '+stripHtml(q.explanation)).toLowerCase()}">
         <div class="q-head">
           <div>
             <div class="q-num">${String(idx+1).padStart(2,'0')} · ${q.label}</div>
@@ -120,21 +180,75 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
         </div>
         <figure class="question-shot">
           <button type="button" class="shot-btn" data-img="${q.image}" aria-label="放大 ${q.label} 題目截圖">
-            <img src="${q.image}" loading="lazy" alt="${q.label} 原題截圖">
+            <img src="${q.image}" loading="eager" alt="${q.label} 原題截圖">
           </button>
           <figcaption>點圖可放大原題截圖</figcaption>
         </figure>
-        <div class="answer-box"><span>答案</span><strong>${q.answer}</strong></div>
-        <details class="explain" open>
-          <summary>詳細解說</summary>
-          <div class="explain-body">${q.explanation}</div>
-        </details>
+        <div class="card-toolbar">
+          <button class="mini-btn reveal-btn" type="button" data-id="${q.id}">顯示答案與詳解</button>
+          <span class="status-badge" data-status="${q.id}">${statusText(q.id)}</span>
+        </div>
+        <div class="answer-panel" data-answer-panel="${q.id}" hidden>
+          <div class="answer-box"><span>答案</span><strong>${q.answer}</strong></div>
+          <div class="mark-row" aria-label="自我評量">
+            <button class="mark-btn correct" type="button" data-mark="correct" data-id="${q.id}">我答對了</button>
+            <button class="mark-btn wrong" type="button" data-mark="wrong" data-id="${q.id}">我答錯 / 不熟</button>
+          </div>
+          <details class="explain" open>
+            <summary>詳細解說</summary>
+            <div class="explain-body">${q.explanation}</div>
+          </details>
+        </div>
       </article>`;
   }
 
   function renderQuestions(){
     $('#questions').innerHTML = questions.map(card).join('');
     if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+    applyFilters();
+  }
+
+  function reveal(id){
+    revealed.add(id);
+    const panel = document.querySelector(`[data-answer-panel="${id}"]`);
+    const btn = document.querySelector(`.reveal-btn[data-id="${id}"]`);
+    if (panel) panel.hidden = false;
+    if (btn) btn.textContent = '答案已顯示';
+    if (window.MathJax?.typesetPromise) MathJax.typesetPromise(panel ? [panel] : undefined);
+  }
+
+  function hideAll(){
+    revealed.clear();
+    $$('[data-answer-panel]').forEach(panel => panel.hidden = true);
+    $$('.reveal-btn').forEach(btn => btn.textContent = '顯示答案與詳解');
+  }
+
+  function mark(id, value){
+    reveal(id);
+    const p = progressOf(id);
+    if (value === 'correct') p.correct += 1;
+    if (value === 'wrong') p.wrong += 1;
+    p.last = value;
+    p.lastAt = new Date().toISOString();
+    progress[id] = p;
+    saveProgress();
+    updateProgressUI();
+    applyFilters();
+  }
+
+  function updateProgressUI(){
+    renderPracticeStats();
+    renderProgressGrid();
+    questions.forEach(q => {
+      const p = progressOf(q.id);
+      const card = document.getElementById(q.id);
+      if (card) {
+        card.classList.toggle('is-correct', p.last === 'correct');
+        card.classList.toggle('is-wrong', p.last === 'wrong');
+      }
+      const status = document.querySelector(`[data-status="${q.id}"]`);
+      if (status) status.textContent = statusText(q.id);
+    });
   }
 
   function applyFilters(){
@@ -142,11 +256,13 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
     const type = $('#typeFilter').value;
     const unit = $('#unitFilter').value;
     let shown = 0;
-    document.querySelectorAll('.q-card').forEach(card => {
+    $$('.q-card').forEach(card => {
+      const id = card.dataset.id;
       const okKw = !kw || card.dataset.search.includes(kw);
       const okType = !type || card.dataset.type === type;
       const okUnit = !unit || card.dataset.unit.startsWith(unit);
-      const show = okKw && okType && okUnit;
+      const okWrong = !wrongOnly || isWrong(id);
+      const show = okKw && okType && okUnit && okWrong;
       card.hidden = !show;
       if (show) shown++;
     });
@@ -155,9 +271,9 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
       empty = document.createElement('div');
       empty.id = 'emptyState';
       empty.className = 'empty-state';
-      empty.textContent = '沒有符合條件的題目，請換個關鍵字或取消篩選。';
       $('#questions').appendChild(empty);
     }
+    empty.textContent = wrongOnly ? '目前沒有符合條件的錯題。可以先回全部題目練習並標記答錯。' : '沒有符合條件的題目，請換個關鍵字或取消篩選。';
     empty.hidden = shown !== 0;
   }
 
@@ -165,25 +281,48 @@ window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\
     $('#searchInput').addEventListener('input', applyFilters);
     $('#typeFilter').addEventListener('change', applyFilters);
     $('#unitFilter').addEventListener('change', applyFilters);
-    $('#toggleAll').addEventListener('click', () => {
-      const details = [...document.querySelectorAll('.explain')];
-      const shouldOpen = details.some(d => !d.open);
-      details.forEach(d => d.open = shouldOpen);
-      $('#toggleAll').textContent = shouldOpen ? '收合全部詳解' : '展開全部詳解';
+    $('#showVisibleAnswers').addEventListener('click', () => {
+      $$('.q-card').filter(card => !card.hidden).forEach(card => reveal(card.dataset.id));
+    });
+    $('#hideAllAnswers').addEventListener('click', hideAll);
+    $('#wrongOnlyBtn').addEventListener('click', () => {
+      wrongOnly = !wrongOnly;
+      $('#wrongOnlyBtn').setAttribute('aria-pressed', String(wrongOnly));
+      $('#wrongOnlyBtn').textContent = wrongOnly ? '顯示全部題目' : '只練錯題';
+      applyFilters();
+    });
+    $('#resetProgress').addEventListener('click', () => {
+      if (!confirm('確定清除本頁的答對/答錯紀錄嗎？')) return;
+      progress = {};
+      saveProgress();
+      updateProgressUI();
+      applyFilters();
     });
     document.addEventListener('click', (ev) => {
-      const btn = ev.target.closest('.shot-btn');
-      if (!btn) return;
-      $('#dialogImg').src = btn.dataset.img;
-      $('#imgDialog').showModal();
+      const shot = ev.target.closest('.shot-btn');
+      if (shot) {
+        $('#dialogImg').src = shot.dataset.img;
+        $('#imgDialog').showModal();
+        return;
+      }
+      const revealBtn = ev.target.closest('.reveal-btn');
+      if (revealBtn) {
+        reveal(revealBtn.dataset.id);
+        return;
+      }
+      const markBtn = ev.target.closest('[data-mark]');
+      if (markBtn) {
+        mark(markBtn.dataset.id, markBtn.dataset.mark);
+      }
     });
     $('#closeDialog').addEventListener('click', () => $('#imgDialog').close());
     $('#imgDialog').addEventListener('click', (ev) => { if (ev.target.id === 'imgDialog') ev.currentTarget.close(); });
   }
 
   renderStats();
+  renderPracticeStats();
   renderFilters();
-  renderAnswerGrid();
+  renderProgressGrid();
   renderQuestions();
   wireEvents();
   </script>

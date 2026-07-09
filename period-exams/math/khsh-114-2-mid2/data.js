@@ -98,34 +98,35 @@ window.EXAM_QUESTIONS = [
     label: '三、填充 3',
     type: '填充題',
     unit: '數列｜部分和與遞迴',
-    answer: '\\(a_1=-2,\\ a_n=a_{n-1}+2\\ (n\\ge2)\\)',
+    answer: '\\(a_1=7,\\ a_2=2,\\ a_n=a_{n-1}+2\\ (n\\ge3)\\)',
     image: 'assets/q06_fill_partial_sum_recurrence.jpg',
     explanation: `
-      <p>已知 \\(S_n=a_1+a_2+\\cdots+a_n=n^2-7n+4\\)。</p>
-      <p>先算第一項：</p>
-      <p>\\[a_1=S_1=1-7+4=-2\\]</p>
-      <p>當 \\(n\\ge2\\)，</p>
+      <p>已知 \\(S_n=a_1+a_2+\\cdots+a_n=n^2-n+7\\)。</p>
+      <p>先算前兩項，因為遞迴關係的起點會用到它們：</p>
+      <p>\\[a_1=S_1=1-1+7=7\\]</p>
+      <p>\\[a_2=S_2-S_1=(4-2+7)-7=2\\]</p>
+      <p>當 \\(n\\ge2\\)，一般項可由部分和相減：</p>
       <p>\\[a_n=S_n-S_{n-1}\\]</p>
-      <p>\\[a_n=(n^2-7n+4)-\\{(n-1)^2-7(n-1)+4\\}=2n-8\\]</p>
-      <p>因此 \\(a_n-a_{n-1}=2\\)，可寫成遞迴關係：</p>
-      <p>\\[\\boxed{a_1=-2,\\quad a_n=a_{n-1}+2\\ (n\\ge2)}\\]</p>`
+      <p>\\[a_n=(n^2-n+7)-\\{(n-1)^2-(n-1)+7\\}=2n-2\\]</p>
+      <p>因此從 \\(n\\ge3\\) 開始，\\(a_n-a_{n-1}=2\\)，可寫成遞迴關係：</p>
+      <p>\\[\\boxed{a_1=7,\\quad a_2=2,\\quad a_n=a_{n-1}+2\\ (n\\ge3)}\\]</p>`
   },
   {
     id: 'q07',
     label: '三、填充 4',
     type: '填充題',
     unit: '數列｜遞迴求一般項',
-    answer: '\\(2\\cdot3^{n-1}+1\\)',
+    answer: '\\(2\\times3^n+1\\)',
     image: 'assets/q07_fill_recurrence_general_term.jpg',
     explanation: `
       <p>遞迴式可整理成「減掉固定值後變等比」。令：</p>
       <p>\\[b_n=a_n-1\\]</p>
       <p>若 \\(a_n=3a_{n-1}-2\\)，則：</p>
       <p>\\[a_n-1=3(a_{n-1}-1)\\Rightarrow b_n=3b_{n-1}\\]</p>
-      <p>又 \\(a_1=3\\)，所以 \\(b_1=2\\)。因此：</p>
-      <p>\\[b_n=2\\cdot3^{n-1}\\]</p>
+      <p>又題目給 \\(a_1=7\\)，所以 \\(b_1=a_1-1=6\\)。因此：</p>
+      <p>\\[b_n=6\\cdot3^{n-1}=2\\cdot3^n\\]</p>
       <p>換回 \\(a_n\\)：</p>
-      <p>\\[\\boxed{a_n=2\\cdot3^{n-1}+1}\\]</p>`
+      <p>\\[\\boxed{a_n=2\\times3^n+1}\\]</p>`
   },
   {
     id: 'q08',
@@ -188,21 +189,21 @@ window.EXAM_QUESTIONS = [
     label: '三、填充 8',
     type: '填充題',
     unit: '機率｜連續通關率',
-    answer: '\\(\\frac59\\)，約 55.6%',
+    answer: '5%',
     image: 'assets/q11_fill_pass_rate.jpg',
     explanation: `
-      <p>連過三關的總通關率等於三關通關率相乘。</p>
-      <p>設第三關通關率為 \\(x\\)，題目給總通關率為 30%，所以：</p>
-      <p>\\[0.9\\times0.6\\times x=0.3\\]</p>
-      <p>\\[x=\\frac{0.3}{0.54}=\\frac59\\]</p>
-      <p>因此第三關通關率為 \\(\\frac59\\)，若換成百分率約為 \\(55.6\\%\\)。</p>`
+      <p>這裡的「平均通關率」是三關通關率的幾何平均。若第三關通關率為 \\(x\\)，則：</p>
+      <p>\\[(0.9\\times0.6\\times x)^{1/3}=0.3\\]</p>
+      <p>兩邊三次方：</p>
+      <p>\\[0.9\\times0.6\\times x=0.3^3=0.027\\]</p>
+      <p>\\[x=\\frac{0.027}{0.54}=0.05=5\\%\\]</p>`
   },
   {
     id: 'q12',
     label: '三、填充 9',
     type: '填充題',
     unit: '統計｜迴歸直線與線性變換',
-    answer: '(1) 80；(2) \\(y\prime=-\\frac43x\prime-\\frac{52}{3}\\)',
+    answer: "(1) 80；(2) \\(y'=-x'-13\\)",
     image: 'assets/q12_fill_regression.jpg',
     explanation: `
       <p>先求平均與標準差：</p>
@@ -215,8 +216,8 @@ window.EXAM_QUESTIONS = [
       <p>\\[b=\\bar y-a\\bar x=48-8\\times16=-80\\]</p>
       <p>原迴歸線為 \\(y=8x-80\\)。</p>
       <p><b>(1)</b> 當 \\(x=20\\)：\\(y=8\\times20-80=80\\)。</p>
-      <p><b>(2)</b> 題目給 \\(x'=-2x+4\\)、\\(y'=\\frac13y+4\\)。由 \\(x=\\frac{4-x'}2\\)：</p>
-      <p>\\[y'=\\frac13\\left(8\\cdot\\frac{4-x'}2-80\\right)+4=-\\frac43x'-\\frac{52}{3}\\]</p>`
+      <p><b>(2)</b> 題目給 \\(x'=-2x+4\\)、\\(y'=\\frac14y+3\\)。由 \\(x=\\frac{4-x'}2\\)：</p>
+      <p>\\[y'=\\frac14\\left(8\\cdot\\frac{4-x'}2-80\\right)+3=-x'-13\\]</p>`
   },
   {
     id: 'q13',
