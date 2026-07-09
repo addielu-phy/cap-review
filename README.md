@@ -10,6 +10,7 @@
 | 自然 | ✅ 已上線 | [`science/114/`](science/114/) | 114 年會考 50 題（生物・理化・地科） |
 | 自然暑期版 | ✅ 已上線 | [`science/114-summer/`](science/114-summer/) | 114 年會考精選 30 題（國一＋國二，排除國三理化・地科・天文） |
 | 國文 | ✅ 已上線 | [`chinese/114/`](chinese/114/) | 114 年會考 42 題（單題＋題組閱讀） |
+| 高一數學段考逐題詳解 | ✅ 已上線 | [`period-exams/math/khsh-114-2-mid2/`](period-exams/math/khsh-114-2-mid2/) | 高師大附中 114-2 第二次段考 16 題組（原題截圖＋詳細推導） |
 | 英語 | 🚧 規劃中 | `english/` | — |
 | 數學 | 🚧 規劃中 | `math/` | — |
 | 社會 | 🚧 規劃中 | `social/` | — |
@@ -22,6 +23,7 @@
 - 老師後台（自然暑期版）：`science/114-summer/teacher.html`
 - 學生端（國文）：`chinese/114/index.html`
 - 老師後台（國文）：`chinese/114/teacher.html`
+- 段考逐題詳解（高一數學）：`period-exams/math/khsh-114-2-mid2/index.html`
 
 ## 架構
 
@@ -50,6 +52,11 @@ site/
 │   ├── firebase-config.js
 │   ├── data.js         # ★ 題庫（window.QUIZ + 42 題）
 │   └── assets/         # 原題截圖與題組選文頁
+├── period-exams/math/khsh-114-2-mid2/
+│   ├── index.html      # 高一數學段考逐題詳解
+│   ├── data.js         # 詳解資料（window.EXAM_QUESTIONS）
+│   ├── solution.css
+│   └── assets/         # 原題截圖與試卷頁面備查
 └── nature/             # 舊版自然科原型（保留）
     ├── index.html      # 學生端
     ├── app.js          # 主程式（登入 / 作答 / 評分 / 錯題分析 / 詳解）

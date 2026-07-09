@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0e1420">
+<title>高一數學段考逐題詳解｜高師大附中 114-2 第二次段考</title>
+<meta name="description" content="高師大附中 114 學年度第二學期第二次段考，高中部一年級數學科逐題詳細解說。含原題截圖、答案表、觀念整理與步驟推導。">
+<link rel="stylesheet" href="../../../style.css">
+<link rel="stylesheet" href="solution.css">
+<script>
+(function(){try{var t=JSON.parse(localStorage.getItem('wfquiz_theme'))||{};var d=document.documentElement;d.dataset.theme=t.theme||'dark';d.dataset.accent=t.accent||'ocean';}catch(e){document.documentElement.dataset.theme='dark';document.documentElement.dataset.accent='ocean';}})();
+</script>
+<script>
+window.MathJax={tex:{inlineMath:[['\\(','\\)'],['$','$']],displayMath:[['\\[','\\]'],['$$','$$']]},svg:{fontCache:'global'}};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+</head>
+<body>
+  <div class="solution-wrap">
+    <nav class="crumb"><a href="../../../index.html">會考自學平台首頁</a><span>›</span><span>高中段考詳解</span><span>›</span><span>高一數學</span></nav>
+
+    <header class="solution-hero">
+      <span class="kicker">高中數學 · 段考逐題詳解</span>
+      <h1>高師大附中 114-2 第二次段考<br><span class="grad">高一數學逐題詳細解說</span></h1>
+      <p>依原試卷與答案卷整理，共 16 個題組／小題。每題保留原題截圖，並補上觀念、公式、計算步驟與容易誤判的地方，方便學生自學或老師投影講解。</p>
+      <div class="hero-actions">
+        <a class="primary-btn" href="#questions">開始看詳解</a>
+        <a class="ghost-btn" href="https://drive.google.com/file/d/16NUTP3KCZLxDX2zXZi_79ARlT_35vTj6/view?usp=drive_web" target="_blank" rel="noopener">原始 PDF</a>
+      </div>
+      <div class="stats" id="stats"></div>
+    </header>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>答案速查</h2>
+          <p>先看答案，再點題號跳到完整詳解。</p>
+        </div>
+        <button class="mini-btn" id="toggleAll" type="button">收合全部詳解</button>
+      </div>
+      <div class="answer-grid" id="answerGrid"></div>
+    </section>
+
+    <section class="panel tools" aria-label="搜尋與篩選">
+      <label>搜尋題號／單元／解說
+        <input id="searchInput" type="search" placeholder="例如：標準差、遞迴、三角形、Q9">
+      </label>
+      <label>題型
+        <select id="typeFilter"><option value="">全部題型</option></select>
+      </label>
+      <label>單元
+        <select id="unitFilter"><option value="">全部單元</option></select>
+      </label>
+    </section>
+
+    <main id="questions" class="question-list"></main>
+
+    <section class="panel source-pages">
+      <h2>原試卷頁面備查</h2>
+      <p>如果單題截圖需要前後文，可開啟下方原試卷頁面。</p>
+      <div class="source-grid">
+        <a href="assets/source_p1.jpg" target="_blank"><img src="assets/source_p1.jpg" loading="lazy" alt="原試卷第 1 頁"><span>第 1 頁</span></a>
+        <a href="assets/source_p2.jpg" target="_blank"><img src="assets/source_p2.jpg" loading="lazy" alt="原試卷第 2 頁"><span>第 2 頁</span></a>
+        <a href="assets/source_p3.jpg" target="_blank"><img src="assets/source_p3.jpg" loading="lazy" alt="原試卷第 3 頁"><span>第 3 頁</span></a>
+        <a href="assets/source_p4.jpg" target="_blank"><img src="assets/source_p4.jpg" loading="lazy" alt="原試卷第 4 頁"><span>第 4 頁</span></a>
+      </div>
+    </section>
+
+    <footer class="solution-foot">
+      <p>題目來源：使用者提供之 Google Drive PDF（高師大附中 114 學年度第二學期第二次段考高一數學試卷與答案卷）。本頁供教育自學與解題講解使用。</p>
+      <p><a href="../../../index.html">← 回首頁</a></p>
+    </footer>
+  </div>
+
+  <dialog id="imgDialog" class="img-dialog">
+    <button id="closeDialog" class="dialog-close" type="button">×</button>
+    <img id="dialogImg" alt="放大題目截圖">
+  </dialog>
+
+  <script src="data.js"></script>
+  <script>
+  const questions = window.EXAM_QUESTIONS || [];
+  const meta = window.EXAM_META || {};
+  const $ = (sel) => document.querySelector(sel);
+  const stripHtml = (html) => String(html || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+  function renderStats(){
+    $('#stats').innerHTML = `
+      <span>${meta.school || '高師大附中'}</span>
+      <span>${meta.grade || '高一'}</span>
+      <span>${questions.length} 題組</span>
+      <span>原題截圖 + 詳解</span>`;
+  }
+
+  function renderFilters(){
+    const typeSet = [...new Set(questions.map(q => q.type))];
+    const unitSet = [...new Set(questions.map(q => q.unit.split('｜')[0]))];
+    $('#typeFilter').innerHTML += typeSet.map(v => `<option value="${v}">${v}</option>`).join('');
+    $('#unitFilter').innerHTML += unitSet.map(v => `<option value="${v}">${v}</option>`).join('');
+  }
+
+  function renderAnswerGrid(){
+    $('#answerGrid').innerHTML = questions.map(q => `
+      <a class="answer-chip" href="#${q.id}">
+        <b>${q.label}</b>
+        <span>${q.answer}</span>
+      </a>`).join('');
+  }
+
+  function card(q, idx){
+    return `
+      <article class="q-card" id="${q.id}" data-type="${q.type}" data-unit="${q.unit}" data-search="${(q.label+' '+q.type+' '+q.unit+' '+q.answer+' '+stripHtml(q.explanation)).toLowerCase()}">
+        <div class="q-head">
+          <div>
+            <div class="q-num">${String(idx+1).padStart(2,'0')} · ${q.label}</div>
+            <h2>${q.unit}</h2>
+          </div>
+          <div class="pill">${q.type}</div>
+        </div>
+        <figure class="question-shot">
+          <button type="button" class="shot-btn" data-img="${q.image}" aria-label="放大 ${q.label} 題目截圖">
+            <img src="${q.image}" loading="lazy" alt="${q.label} 原題截圖">
+          </button>
+          <figcaption>點圖可放大原題截圖</figcaption>
+        </figure>
+        <div class="answer-box"><span>答案</span><strong>${q.answer}</strong></div>
+        <details class="explain" open>
+          <summary>詳細解說</summary>
+          <div class="explain-body">${q.explanation}</div>
+        </details>
+      </article>`;
+  }
+
+  function renderQuestions(){
+    $('#questions').innerHTML = questions.map(card).join('');
+    if (window.MathJax?.typesetPromise) MathJax.typesetPromise();
+  }
+
+  function applyFilters(){
+    const kw = $('#searchInput').value.trim().toLowerCase();
+    const type = $('#typeFilter').value;
+    const unit = $('#unitFilter').value;
+    let shown = 0;
+    document.querySelectorAll('.q-card').forEach(card => {
+      const okKw = !kw || card.dataset.search.includes(kw);
+      const okType = !type || card.dataset.type === type;
+      const okUnit = !unit || card.dataset.unit.startsWith(unit);
+      const show = okKw && okType && okUnit;
+      card.hidden = !show;
+      if (show) shown++;
+    });
+    let empty = $('#emptyState');
+    if (!empty) {
+      empty = document.createElement('div');
+      empty.id = 'emptyState';
+      empty.className = 'empty-state';
+      empty.textContent = '沒有符合條件的題目，請換個關鍵字或取消篩選。';
+      $('#questions').appendChild(empty);
+    }
+    empty.hidden = shown !== 0;
+  }
+
+  function wireEvents(){
+    $('#searchInput').addEventListener('input', applyFilters);
+    $('#typeFilter').addEventListener('change', applyFilters);
+    $('#unitFilter').addEventListener('change', applyFilters);
+    $('#toggleAll').addEventListener('click', () => {
+      const details = [...document.querySelectorAll('.explain')];
+      const shouldOpen = details.some(d => !d.open);
+      details.forEach(d => d.open = shouldOpen);
+      $('#toggleAll').textContent = shouldOpen ? '收合全部詳解' : '展開全部詳解';
+    });
+    document.addEventListener('click', (ev) => {
+      const btn = ev.target.closest('.shot-btn');
+      if (!btn) return;
+      $('#dialogImg').src = btn.dataset.img;
+      $('#imgDialog').showModal();
+    });
+    $('#closeDialog').addEventListener('click', () => $('#imgDialog').close());
+    $('#imgDialog').addEventListener('click', (ev) => { if (ev.target.id === 'imgDialog') ev.currentTarget.close(); });
+  }
+
+  renderStats();
+  renderFilters();
+  renderAnswerGrid();
+  renderQuestions();
+  wireEvents();
+  </script>
+  <script src="../../../theme.js"></script>
+</body>
+</html>
