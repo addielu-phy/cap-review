@@ -16,6 +16,10 @@ function fmtDur(sec){const m=Math.floor(sec/60),s=sec%60;return m?`${m}分${s}�
 function pct(n,d){return d?Math.round(n/d*100):0;}
 function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
 function modeLabel(m){return m==="practice"?"隨手練習":m==="wrong"?"錯題練習":"全卷測驗";}
+function practiceCount(){
+  const configured=Number(QUIZ.practiceCount || 0);
+  return configured>0 ? Math.min(configured, QUIZ.questions.length) : QUIZ.questions.length;
+}
 function answerIndex(q){return LETTERS.indexOf(q.answer);}
 function isSelfRated(q){return q && q.answerType === "self";}
 function qLabel(q){return q.displayNo || q.no;}
@@ -164,8 +168,8 @@ function viewDashboard(name){
   app.innerHTML=`
     <div class="spread"><div class="brand"><div class="logo">自</div><div><h1>${esc(name)} 的練習室</h1><div class="sub">${esc(QUIZ.title)}・${QUIZ.subject}</div></div></div><button class="btn sm ghost" onclick="viewLogin()">切換</button></div>
     <div class="card"><h3>選擇練習方式</h3><p class="muted small">${QUIZ.scoreNote || `${QUIZ.questions.length} 題，每題 ${QUIZ.perScore} 分，滿分 ${QUIZ.totalScore} 分。`}</p><div class="modegrid">
-      <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','practice')"><div class="mi">⚡</div><div class="mt">隨手練習</div><div class="md">隨機出題，選完立即看正解與詳解。</div></button>
-      <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','full')"><div class="mi">📝</div><div class="mt">正式測驗</div><div class="md">整卷作答，最後一次評分與單元診斷。</div></button>
+      <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','practice')"><div class="mi">⚡</div><div class="mt">隨手練習</div><div class="md">${practiceCount()<QUIZ.questions.length?`每回隨機抽 ${practiceCount()} 題，`:"題序隨機，"}選完立即看正解與詳解。</div></button>
+      <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','full')"><div class="mi">📝</div><div class="mt">完整 ${QUIZ.questions.length} 題測驗</div><div class="md">整卷作答，最後一次評分與單元診斷。</div></button>
       <button class="modecard" ${wrong.length?`onclick="startMode('${encodeURIComponent(name)}','wrong')"`:"disabled"}><div class="mi">🎯</div><div class="mt">錯題練習</div><div class="md">${wrong.length?`練最近錯的 ${wrong.length} 題。`:"先完成一次練習就會出現錯題。"}</div></button>
     </div><div style="height:12px"></div><button class="btn sm" onclick="exportProfile('${encodeURIComponent(name)}')">⬇️ 匯出我的練習紀錄給老師</button> <span id="cloudStatus" class="chip ${cloudOn()?"good":"warn"}">${cloudOn()?"雲端同步已啟用":"本機保存模式"}</span></div>
     ${weak}<div class="card"><h3>練習紀錄 <span class="muted small">${atts.length}次</span></h3>${hist}</div>
@@ -173,7 +177,7 @@ function viewDashboard(name){
 }
 window.startMode=function(enc,mode){
   const name=decodeURIComponent(enc); const prof=getProfile(name); let ids=QUIZ.questions.map(q=>q.no);
-  if(mode==="practice") ids=shuffle(ids);
+  if(mode==="practice") ids=shuffle(ids).slice(0, practiceCount());
   if(mode==="wrong"){ids=latestWrongIds(prof); if(!ids.length){alert("目前沒有錯題可練。"); return;}}
   session={name,mode,ids,i:0,answers:{},revealed:{},start:now(),saved:false}; renderQuestion();
 };

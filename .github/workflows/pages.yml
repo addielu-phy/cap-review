@@ -32,6 +32,7 @@ jobs:
       - name: Validate quiz sites and catalog
         run: |
           python scripts/validate_cap_sites.py
+          python scripts/validate_science_book3_113_115.py
           python scripts/validate_catalog.py --no-network
       - name: Stage public static site only
         run: |

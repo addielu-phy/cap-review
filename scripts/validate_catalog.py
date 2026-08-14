@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_SERIES = 15
-EXPECTED_RESOURCES = 22
+EXPECTED_RESOURCES = 23
 
 
 def load_assignment(text: str, name: str) -> list[dict]:

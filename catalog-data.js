@@ -317,6 +317,26 @@ window.CAP_SERIES = [
 ];
 window.CAP_RESOURCES = [
   {
+    "id": "science-book3-113-115",
+    "title": "113–115 會考第三冊理化精選25題",
+    "description": "嚴格篩選國二上第三冊範圍，六章各3–5題；支援隨機10題、完整25題、錯題練習與教師雲端紀錄。",
+    "category": "正式自學",
+    "kind": "國二上理化",
+    "status": "recommended",
+    "icon": "三",
+    "meta": "113–115 年・第三冊・25 題",
+    "href": "science/book3/",
+    "teacherHref": "science/book3/teacher.html",
+    "tags": [
+      "113–115",
+      "自然",
+      "理化",
+      "國二上",
+      "第三冊",
+      "25題"
+    ]
+  },
+  {
     "id": "science-114-summer",
     "title": "114 會考自然科暑期版",
     "description": "精選國一、國二範圍 30 題，保留官方題圖、自動評分、詳解與錯題練習。",

@@ -17,6 +17,19 @@ SUBJECTS = {
 
 RESOURCES = [
     {
+        "id": "science-book3-113-115",
+        "title": "113–115 會考第三冊理化精選25題",
+        "description": "嚴格篩選國二上第三冊範圍，六章各3–5題；支援隨機10題、完整25題、錯題練習與教師雲端紀錄。",
+        "category": "正式自學",
+        "kind": "國二上理化",
+        "status": "recommended",
+        "icon": "三",
+        "meta": "113–115 年・第三冊・25 題",
+        "href": "science/book3/",
+        "teacherHref": "science/book3/teacher.html",
+        "tags": ["113–115", "自然", "理化", "國二上", "第三冊", "25題"],
+    },
+    {
         "id": "science-114-summer",
         "title": "114 會考自然科暑期版",
         "description": "精選國一、國二範圍 30 題，保留官方題圖、自動評分、詳解與錯題練習。",
@@ -306,6 +319,24 @@ def series_entries() -> list[dict]:
     return rows
 
 
+def teacher_entries() -> list[dict]:
+    rows = series_entries()
+    rows.append(
+        {
+            "id": "cap-113-115-science-book3",
+            "year": "113–115",
+            "slug": "science",
+            "name": "第三冊理化25題",
+            "icon": "三",
+            "count": 25,
+            "desc": "國二上第三冊六章精選；隨機10題與完整25題",
+            "studentHref": "science/book3/",
+            "teacherHref": "science/book3/teacher.html",
+        }
+    )
+    return rows
+
+
 def catalog_page() -> str:
     return '''<!doctype html>
 <html lang="zh-Hant">
@@ -384,13 +415,16 @@ def catalog_page() -> str:
 
 
 def teacher_page() -> str:
-    rows = json.dumps(series_entries(), ensure_ascii=False)
+    rows = json.dumps(teacher_entries(), ensure_ascii=False)
+    teacher_count = len(teacher_entries())
+    year_filters = [{"v": str(y), "t": str(y) + " 年"} for y in YEARS]
+    year_filters.append({"v": "113–115", "t": "113–115 精選"})
     return f'''<!doctype html>
 <html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0e1420"><title>教師工作台｜113–115 會考</title>
-<meta name="description" content="113、114、115 年國中教育會考國文、英語、數學、社會、自然教師端總入口。">
+<meta name="description" content="113、114、115 年國中教育會考五科教師端與113–115第三冊理化精選教師端總入口。">
 <link rel="stylesheet" href="style.css"><link rel="stylesheet" href="hub.css"></head><body><main class="wrap teacher-wrap">
-<div class="hero"><span class="kicker">教師總覽・Firebase 雲端後台</span><h1>會考 <span class="grad">教師工作台</span></h1><p>彙整最近三年、五科共 15 個教師端。登入後依唯一 quizId 查看學生作答、全班最常錯題、單元弱點、學生列表與 CSV。</p></div>
+<div class="hero"><span class="kicker">教師總覽・Firebase 雲端後台</span><h1>會考 <span class="grad">教師工作台</span></h1><p>彙整最近三年五科 15 個正式教師端，加上第三冊理化精選，共 {teacher_count} 個教師端。登入後依唯一 quizId 查看學生作答、全班最常錯題、單元弱點、學生列表與 CSV。</p></div>
 <div class="info-card"><div class="filters" id="yearFilters" aria-label="年份篩選"></div><div class="filters" id="subjectFilters" aria-label="科目篩選"></div><div class="summary" id="summary" aria-live="polite"></div></div>
 <div class="subjects" id="cards"></div>
 <div class="info-card"><h3>使用提醒</h3><ul><li>教師端需使用核准的教師帳號登入。</li><li>每個年份與科目使用獨立 quizId，紀錄不會混在一起。</li><li>數學非選擇題保留學生自行核對，不混入自動評分。</li></ul></div>
@@ -398,7 +432,7 @@ def teacher_page() -> str:
 <script>const DATA={rows};let year='all',subject='all';
 function esc(s){{return String(s??'').replace(/[&<>"']/g,c=>({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}}[c]));}}
 function buttons(id,items,current,setter){{document.getElementById(id).innerHTML=items.map(x=>`<button class="filter ${{x.v===current?'active':''}}" data-v="${{esc(x.v)}}" aria-pressed="${{x.v===current}}">${{esc(x.t)}}</button>`).join('');document.querySelectorAll(`#${{id}} .filter`).forEach(b=>b.onclick=()=>setter(b.dataset.v));}}
-function render(){{buttons('yearFilters',[{{v:'all',t:'全部年份'}},...{json.dumps([{'v': str(y), 't': str(y)+' 年'} for y in YEARS],ensure_ascii=False)}],year,v=>{{year=v;render()}});buttons('subjectFilters',[{{v:'all',t:'全部科目'}},...{json.dumps([{'v': s, 't': m['name']} for s,m in SUBJECTS.items()],ensure_ascii=False)}],subject,v=>{{subject=v;render()}});const list=DATA.filter(x=>(year==='all'||String(x.year)===year)&&(subject==='all'||x.slug===subject));document.getElementById('summary').textContent=`顯示 ${{list.length}} / 15 個教師端`;
+function render(){{buttons('yearFilters',[{{v:'all',t:'全部年份'}},...{json.dumps(year_filters,ensure_ascii=False)}],year,v=>{{year=v;render()}});buttons('subjectFilters',[{{v:'all',t:'全部科目'}},...{json.dumps([{'v': s, 't': m['name']} for s,m in SUBJECTS.items()],ensure_ascii=False)}],subject,v=>{{subject=v;render()}});const list=DATA.filter(x=>(year==='all'||String(x.year)===year)&&(subject==='all'||x.slug===subject));document.getElementById('summary').textContent=`顯示 ${{list.length}} / {teacher_count} 個教師端`;
 document.getElementById('cards').innerHTML=list.map(x=>`<article class="subj live"><div class="top"><div class="ico subject-${{esc(x.slug)}}">${{esc(x.icon)}}</div><div><div class="nm">${{esc(x.year)}} 會考${{esc(x.name)}}教師端</div><div class="en">${{esc(x.id)}}</div></div></div><div class="desc">${{esc(x.desc)}}。查看作答紀錄、成績與錯題統計。</div><div class="meta"><span class="chip unit">${{esc(x.year)}} 會考</span><span class="chip">${{esc(x.count)}} 題</span><span class="chip">需教師登入</span></div><div class="card-actions"><a class="btn primary sm" href="${{esc(x.teacherHref)}}">開啟教師端</a><a class="btn sm" href="${{esc(x.studentHref)}}">查看學生端</a></div></article>`).join('');}}
 render();</script><script src="theme.js"></script></body></html>\n'''
 
