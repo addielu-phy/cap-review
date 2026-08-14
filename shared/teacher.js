@@ -34,8 +34,10 @@ function normalizeAttempt(att, fallbackName){
   if(!att || !att.ids || !att.answers) return null;
   const ids = att.ids.map(Number).filter(n => QMAP[n]);
   const answers = att.answers || {};
-  const wrongIds = (att.wrongIds && att.wrongIds.length) ? att.wrongIds.map(Number) : ids.filter(no => answers[no] !== QMAP[no].answer);
-  const correct = typeof att.correct === "number" ? att.correct : ids.length - wrongIds.length;
+  const ungradedIds = (att.ungradedIds || []).map(Number).filter(n => QMAP[n]);
+  const wrongIds = (att.wrongIds && att.wrongIds.length) ? att.wrongIds.map(Number) : ids.filter(no => QMAP[no].answerType !== "self" && answers[no] !== QMAP[no].answer);
+  const gradedIds = ids.filter(no => QMAP[no].answerType !== "self");
+  const correct = typeof att.correct === "number" ? att.correct : gradedIds.length - wrongIds.length;
   return {
     name: att.name || fallbackName || "未命名",
     quiz: att.quiz || att.quizId || QUIZ.id,
@@ -44,7 +46,7 @@ function normalizeAttempt(att, fallbackName){
     subject: att.subject || QUIZ.subject,
     mode: att.mode || "full",
     attemptNo: att.attemptNo || att.n || null,
-    ids, answers, wrongIds,
+    ids, answers, wrongIds, ungradedIds,
     correct, total: att.total || ids.length,
     score: typeof att.score === "number" ? att.score : Math.round(correct * (QUIZ.perScore || 2)),
     date: tsMillis(att.ts) || tsMillis(att.date) || tsMillis(att.clientTime) || Date.now(),
@@ -80,14 +82,14 @@ function stats(){
   const students = {};
   rows.forEach(r => { const k=r.name || "未命名"; if(!students[k]) students[k]=[]; students[k].push(r); });
   const qAtt = {}, qWrong = {};
-  QUIZ.questions.forEach(q => { qAtt[q.no]=0; qWrong[q.no]=0; });
+  QUIZ.questions.filter(q => q.answerType !== "self").forEach(q => { qAtt[q.no]=0; qWrong[q.no]=0; });
   assessable.forEach(r => {
     (r.ids || []).forEach(no => { if(qAtt[no] !== undefined) qAtt[no]++; });
     (r.wrongIds || []).forEach(no => { if(qWrong[no] !== undefined) qWrong[no]++; });
   });
-  const qStats = QUIZ.questions.map(q => ({no:q.no, unit:q.unit, answer:q.answer, attempts:qAtt[q.no]||0, wrong:qWrong[q.no]||0, rate:qAtt[q.no]?qWrong[q.no]/qAtt[q.no]:0}));
+  const qStats = QUIZ.questions.filter(q => q.answerType !== "self").map(q => ({no:q.no, label:q.displayNo||q.no, unit:q.unit, answer:q.answer, attempts:qAtt[q.no]||0, wrong:qWrong[q.no]||0, rate:qAtt[q.no]?qWrong[q.no]/qAtt[q.no]:0}));
   const unitMap = {};
-  QUIZ.questions.forEach(q => { if(!unitMap[q.unit]) unitMap[q.unit]={unit:q.unit, attempts:0, wrong:0, qn:0}; unitMap[q.unit].qn++; });
+  QUIZ.questions.filter(q => q.answerType !== "self").forEach(q => { if(!unitMap[q.unit]) unitMap[q.unit]={unit:q.unit, attempts:0, wrong:0, qn:0}; unitMap[q.unit].qn++; });
   qStats.forEach(q => { unitMap[q.unit].attempts += q.attempts; unitMap[q.unit].wrong += q.wrong; });
   const scores = full.map(r => r.score);
   return {full, assessable, students, qStats, units:Object.values(unitMap), avg:scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):null, max:scores.length?Math.max(...scores):null, min:scores.length?Math.min(...scores):null};
@@ -104,7 +106,7 @@ function render(){
     return `<tr><td>${esc(name)}</td><td class="right">${rs.length}</td><td class="right"><b>${best}</b></td><td class="right">${latest.score}</td><td class="small muted">${fmtDate(latest.date)}</td></tr>`;
   }).join("") || `<tr><td colspan="5" class="muted">尚無學生紀錄</td></tr>`;
   const wrongRows = st.qStats.filter(q=>q.attempts>0).sort((a,b)=>b.rate-a.rate || b.wrong-a.wrong).slice(0,20).map(q => `
-    <tr><td><b>${q.no}</b></td><td><span class="chip unit">${esc(q.unit)}</span></td><td>${q.answer}</td><td class="right">${q.wrong}/${q.attempts}</td><td><div class="minibar"><span style="width:${pct(q.wrong,q.attempts)}%;background:${q.rate>=.4?'var(--bad)':q.rate>=.2?'var(--warn)':'var(--good)'}"></span></div></td><td class="right">${pct(q.wrong,q.attempts)}%</td></tr>`).join("") || `<tr><td colspan="6" class="muted">學生交卷上傳後會顯示全班最常錯題</td></tr>`;
+    <tr><td><b>${esc(q.label)}</b></td><td><span class="chip unit">${esc(q.unit)}</span></td><td>${q.answer}</td><td class="right">${q.wrong}/${q.attempts}</td><td><div class="minibar"><span style="width:${pct(q.wrong,q.attempts)}%;background:${q.rate>=.4?'var(--bad)':q.rate>=.2?'var(--warn)':'var(--good)'}"></span></div></td><td class="right">${pct(q.wrong,q.attempts)}%</td></tr>`).join("") || `<tr><td colspan="6" class="muted">學生交卷上傳後會顯示全班最常錯題</td></tr>`;
   const unitRows = st.units.sort((a,b)=>(b.attempts?b.wrong/b.attempts:0)-(a.attempts?a.wrong/a.attempts:0)).map(u => `
     <tr><td>${esc(u.unit)}</td><td class="right">${u.qn}</td><td class="right">${u.wrong}/${u.attempts || 0}</td><td><div class="minibar"><span style="width:${pct(u.wrong,u.attempts)}%;background:${(u.attempts && u.wrong/u.attempts>=.4)?'var(--bad)':(u.attempts && u.wrong/u.attempts>=.2)?'var(--warn)':'var(--good)'}"></span></div></td><td class="right">${pct(u.wrong,u.attempts)}%</td></tr>`).join("");
 

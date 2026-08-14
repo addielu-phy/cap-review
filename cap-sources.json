@@ -1,0 +1,174 @@
+{
+  "schemaVersion": 1,
+  "officialArchive": "https://cap.rcpet.edu.tw/examination.html",
+  "years": {
+    "113": {
+      "pageUrl": "https://cap.rcpet.edu.tw/exam/113/113exam.html",
+      "pageSha256": "3d3a849dff6a7f3adfbff2e54799ffea0929585bbdc01f4e889cd64946f57e96",
+      "links": [
+        {
+          "label": "參考答案",
+          "url": "https://drive.google.com/file/d/1cWlogP9FBRX1eD5kjgVDP2_6f8VCLSB4/view?usp=drive_link",
+          "driveId": "1cWlogP9FBRX1eD5kjgVDP2_6f8VCLSB4"
+        },
+        {
+          "label": "國文科",
+          "url": "https://drive.google.com/file/d/1Xr5AwMNQipYZblCEbZadyBvLVcT_8XSv/view?usp=drive_link",
+          "driveId": "1Xr5AwMNQipYZblCEbZadyBvLVcT_8XSv"
+        },
+        {
+          "label": "英語（閱讀）",
+          "url": "https://drive.google.com/file/d/1ZU8SG-4jdV1DGvPzpgzoi_hhRiD4NT3S/view?usp=drive_link",
+          "driveId": "1ZU8SG-4jdV1DGvPzpgzoi_hhRiD4NT3S"
+        },
+        {
+          "label": "英語（聽力）",
+          "url": "https://drive.google.com/file/d/1iAZySLpGHqKdwyIlriM58ve8vW9aMV0Q/view?usp=drive_link",
+          "driveId": "1iAZySLpGHqKdwyIlriM58ve8vW9aMV0Q"
+        },
+        {
+          "label": "數學科",
+          "url": "https://drive.google.com/file/d/1MXfrOI_4KyxF6A-2NNd_J_eIuo3Epa46/view?usp=drive_link",
+          "driveId": "1MXfrOI_4KyxF6A-2NNd_J_eIuo3Epa46"
+        },
+        {
+          "label": "社會科",
+          "url": "https://drive.google.com/file/d/1NJYibw-N2mHZP5lL8-rOhirWv_ZFQNiz/view?usp=drive_link",
+          "driveId": "1NJYibw-N2mHZP5lL8-rOhirWv_ZFQNiz"
+        },
+        {
+          "label": "自然科",
+          "url": "https://drive.google.com/file/d/1lO1_3Iq62BmTHR8m29or7I8VtS8qZdDR/view?usp=drive_link",
+          "driveId": "1lO1_3Iq62BmTHR8m29or7I8VtS8qZdDR"
+        },
+        {
+          "label": "113年國中教育會考試題疑義新聞稿暨釋覆內容",
+          "url": "https://cap.rcpet.edu.tw/113doubt.html",
+          "driveId": ""
+        },
+        {
+          "label": "113年國中教育會考各科計分與閱卷結果說明",
+          "url": "https://drive.google.com/file/d/11D_cR5mCsiAgIvCXCN-k7N6pYhNrHi51/view?usp=drive_link",
+          "driveId": "11D_cR5mCsiAgIvCXCN-k7N6pYhNrHi51"
+        },
+        {
+          "label": "113年國中教育會考各題通過率",
+          "url": "https://drive.google.com/file/d/1NpFiGL8A6KVR-Hyn_M7u1JhvXNOTqPOr/view?usp=drive_link",
+          "driveId": "1NpFiGL8A6KVR-Hyn_M7u1JhvXNOTqPOr"
+        }
+      ]
+    },
+    "114": {
+      "pageUrl": "https://cap.rcpet.edu.tw/exam/114/114exam.html",
+      "pageSha256": "4767f351f6936285f3ca699fb6749b97e916b4f1e1890918d0cb653721479e46",
+      "links": [
+        {
+          "label": "參考答案",
+          "url": "https://drive.google.com/file/d/175hz0lHG4GTDNxYet9lrRDu0lmC_G08o/view?usp=drive_link",
+          "driveId": "175hz0lHG4GTDNxYet9lrRDu0lmC_G08o"
+        },
+        {
+          "label": "國文科",
+          "url": "https://drive.google.com/file/d/102j8F3hoCvGgMCVP6x6oHN9cCd0R6_Ii/view?usp=drive_link",
+          "driveId": "102j8F3hoCvGgMCVP6x6oHN9cCd0R6_Ii"
+        },
+        {
+          "label": "英語（閱讀）",
+          "url": "https://drive.google.com/file/d/1Or0bC16Jn2hA0uAF2zrryHoY46ywIQjK/view?usp=drive_link",
+          "driveId": "1Or0bC16Jn2hA0uAF2zrryHoY46ywIQjK"
+        },
+        {
+          "label": "英語（聽力）",
+          "url": "https://drive.google.com/file/d/1NQNXowVBpE4N7i790_88YXZ03zt2ktFn/view?usp=drive_link",
+          "driveId": "1NQNXowVBpE4N7i790_88YXZ03zt2ktFn"
+        },
+        {
+          "label": "數學科",
+          "url": "https://drive.google.com/file/d/1c2AGC67Bq344EdGSZkO9SZhrY50hHTJx/view?usp=drive_link",
+          "driveId": "1c2AGC67Bq344EdGSZkO9SZhrY50hHTJx"
+        },
+        {
+          "label": "社會科",
+          "url": "https://drive.google.com/file/d/1vFl3qctoBXYcCtWbAqKUqhekIMgV6q-m/view?usp=drive_link",
+          "driveId": "1vFl3qctoBXYcCtWbAqKUqhekIMgV6q-m"
+        },
+        {
+          "label": "自然科",
+          "url": "https://drive.google.com/file/d/18_lHom7zYhyOoMvxHt4hKJS_CynFOoZ1/view?usp=drive_link",
+          "driveId": "18_lHom7zYhyOoMvxHt4hKJS_CynFOoZ1"
+        },
+        {
+          "label": "114年國中教育會考試題疑義新聞稿暨釋覆內容",
+          "url": "https://cap.rcpet.edu.tw/114doubt.html",
+          "driveId": ""
+        },
+        {
+          "label": "114年國中教育會考各科計分與閱卷結果說明",
+          "url": "https://drive.google.com/file/d/1YMlxyY9RhJj4GnqiKzigwRXBGf3kSV6F/view?usp=drive_link",
+          "driveId": "1YMlxyY9RhJj4GnqiKzigwRXBGf3kSV6F"
+        },
+        {
+          "label": "114國中教育會考各題通過率",
+          "url": "https://drive.google.com/file/d/1hwzaBmzmD0sYPw4q1KVCBW6Vq5OviriH/view?usp=drive_link",
+          "driveId": "1hwzaBmzmD0sYPw4q1KVCBW6Vq5OviriH"
+        }
+      ]
+    },
+    "115": {
+      "pageUrl": "https://cap.rcpet.edu.tw/exam/115/115exam.html",
+      "pageSha256": "b9109414977cd1842d4d8845b03ecb07da52c0eccacfbfcc908e3abf040627b5",
+      "links": [
+        {
+          "label": "參考答案",
+          "url": "https://drive.google.com/file/d/1fxfOLQPMdCEMSuziD1qsQZg3vVOGt8df/view?usp=drive_link",
+          "driveId": "1fxfOLQPMdCEMSuziD1qsQZg3vVOGt8df"
+        },
+        {
+          "label": "國文科",
+          "url": "https://drive.google.com/file/d/1FQtq4_a4GTsTKURdzPhDkKmONKRXtTJ9/view?usp=drive_link",
+          "driveId": "1FQtq4_a4GTsTKURdzPhDkKmONKRXtTJ9"
+        },
+        {
+          "label": "英語（閱讀）",
+          "url": "https://drive.google.com/file/d/1pzRZpkZEBg4x7GNTAIrdfGJCxNSKgok-/view?usp=drive_link",
+          "driveId": "1pzRZpkZEBg4x7GNTAIrdfGJCxNSKgok-"
+        },
+        {
+          "label": "英語（聽力）",
+          "url": "https://drive.google.com/file/d/1zRjsoyQhLRJfmmHtBJfi5qJa6ND1uVJ6/view?usp=drive_link",
+          "driveId": "1zRjsoyQhLRJfmmHtBJfi5qJa6ND1uVJ6"
+        },
+        {
+          "label": "數學科",
+          "url": "https://drive.google.com/file/d/1G-grfVw1NldMD3TRG-7Lco-yOuaoTKoK/view?usp=drive_link",
+          "driveId": "1G-grfVw1NldMD3TRG-7Lco-yOuaoTKoK"
+        },
+        {
+          "label": "社會科",
+          "url": "https://drive.google.com/file/d/1ITxBlFhNSIbg1u1C7FrU2ODk951wt-RT/view?usp=drive_link",
+          "driveId": "1ITxBlFhNSIbg1u1C7FrU2ODk951wt-RT"
+        },
+        {
+          "label": "自然科",
+          "url": "https://drive.google.com/file/d/1ZJNPG9Wz3zuI8UkPGUY50URejxxZYmQ8/view?usp=drive_link",
+          "driveId": "1ZJNPG9Wz3zuI8UkPGUY50URejxxZYmQ8"
+        },
+        {
+          "label": "115年國中教育會考試題疑義新聞稿暨釋復內容",
+          "url": "https://cap.rcpet.edu.tw/115doubt.html",
+          "driveId": ""
+        },
+        {
+          "label": "115年國中教育會考各科計分與閱卷結果說明",
+          "url": "https://drive.google.com/file/d/1z8t9ynUqMNzlHBbdaYjnRakUMLK0LIiX/view?usp=drive_link",
+          "driveId": "1z8t9ynUqMNzlHBbdaYjnRakUMLK0LIiX"
+        },
+        {
+          "label": "115年國中教育會考各題通過率",
+          "url": "https://drive.google.com/file/d/18wrAaXAakCwra1WXdS1HPxLDvPBlyp_S/view?usp=drive_link",
+          "driveId": "18wrAaXAakCwra1WXdS1HPxLDvPBlyp_S"
+        }
+      ]
+    }
+  }
+}

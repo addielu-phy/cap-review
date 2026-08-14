@@ -17,7 +17,12 @@ function pct(n,d){return d?Math.round(n/d*100):0;}
 function shuffle(a){const x=a.slice();for(let i=x.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[x[i],x[j]]=[x[j],x[i]];}return x;}
 function modeLabel(m){return m==="practice"?"隨手練習":m==="wrong"?"錯題練習":"全卷測驗";}
 function answerIndex(q){return LETTERS.indexOf(q.answer);}
-function scoreOf(correct,total){return Math.round(correct * (QUIZ.perScore || 2));}
+function isSelfRated(q){return q && q.answerType === "self";}
+function qLabel(q){return q.displayNo || q.no;}
+function scoreOf(correct,total){
+  if(QUIZ.scoreScale === "percent") return total ? Math.round(correct / total * 100) : 0;
+  return Math.round(correct * (QUIZ.perScore || 2));
+}
 
 function loadDB(){try{return JSON.parse(localStorage.getItem(STORE)) || {profiles:{},last:""};}catch(e){return {profiles:{},last:""};}}
 function saveDB(db){localStorage.setItem(STORE, JSON.stringify(db));}
@@ -38,11 +43,14 @@ function cloudPayload(att, name){
     quizTitle: QUIZ.title,
     subject: QUIZ.subject,
     score: att.score,
+    officialScore: att.officialScore ?? att.score,
+    autoMaxScore: att.autoMaxScore ?? QUIZ.totalScore,
     correct: att.correct,
     total: att.total,
     ids: att.ids || [],
     answers: att.answers || {},
     wrongIds: att.wrongIds || [],
+    ungradedIds: att.ungradedIds || [],
     durationSec: att.durationSec || 0,
     clientTime: att.date || Date.now(),
     date: att.date || Date.now(),
@@ -92,11 +100,18 @@ window.zoom = src => { lbImg.src = src; lightbox.classList.add("on"); };
 lightbox.onclick = () => lightbox.classList.remove("on");
 
 function sourceHTML(q){
-  return (q.images || []).map(src => `<img class="source-img" src="${esc(src)}" alt="第${q.no}題原題截圖" loading="lazy" onclick="zoom('${esc(src)}')">`).join("") + `<div class="source-note">點圖可放大；原題截圖為作答依據</div>`;
+  const primary=(q.images || []).map(src => `<img class="source-img" src="${esc(src)}" alt="${esc(qLabel(q))}原題截圖" loading="lazy" onclick="zoom('${esc(src)}')">`).join("");
+  const context=(q.contextImages || []).length ? `<details class="context"><summary>展開題組前文／完整來源頁</summary>${q.contextImages.map(src => `<img class="source-img" src="${esc(src)}" alt="${esc(qLabel(q))}題組前文" loading="lazy" onclick="zoom('${esc(src)}')">`).join("")}</details>` : "";
+  const audio=q.audio ? `<div class="audio-box"><b>🎧 ${esc(qLabel(q))}官方聽力音檔</b><audio controls preload="none" src="${esc(q.audio)}"></audio></div>` : "";
+  return audio + primary + context + `<div class="source-note">點圖可放大；原題截圖為作答依據</div>`;
 }
 function optionHTML(q, chosen, reveal){
-  const texts=q.options && q.options.length===4 ? q.options : ["選項 A", "選項 B", "選項 C", "選項 D"];
-  return `<div class="grid col-12" style="grid-template-columns:1fr;gap:10px">${LETTERS.map((L,i)=>{
+  if(isSelfRated(q)){
+    return `<div class="self-answer"><p>本題為數學非選擇題，請在紙上完整寫出計算與理由；完成後按下方按鈕做記號。正式測驗只自動計算選擇題分數。</p><button class="btn ${chosen?'selected':''}" onclick="markSelf()">${chosen?'✓ 已完成作答':'標記為已完成'}</button>${reveal?`<div class="explain">${esc(q.explanation || '請依官方評分原則自行核對解題過程。')}</div>`:""}</div>`;
+  }
+  const texts=q.options && (q.options.length===3 || q.options.length===4) ? q.options : ["選項 A", "選項 B", "選項 C", "選項 D"];
+  const letters=LETTERS.slice(0,texts.length);
+  return `<div class="grid col-12" style="grid-template-columns:1fr;gap:10px">${letters.map((L,i)=>{
     let cls="btn option";
     if(chosen===L) cls += " selected";
     if(reveal && L===q.answer) cls += " correct";
@@ -138,7 +153,7 @@ function latestWrongIds(prof){
 }
 function unitStats(att){
   const map={};
-  (att.ids||[]).forEach(no=>{const q=QMAP[no]; if(!q) return; if(!map[q.unit]) map[q.unit]={total:0,correct:0}; map[q.unit].total++; if(!(att.wrongIds||[]).includes(no)) map[q.unit].correct++;});
+  (att.ids||[]).forEach(no=>{const q=QMAP[no]; if(!q || isSelfRated(q)) return; if(!map[q.unit]) map[q.unit]={total:0,correct:0}; map[q.unit].total++; if(!(att.wrongIds||[]).includes(no)) map[q.unit].correct++;});
   return map;
 }
 function viewDashboard(name){
@@ -148,7 +163,7 @@ function viewDashboard(name){
   if(last){const us=Object.entries(unitStats(last)).filter(([,v])=>v.correct/v.total<0.7).sort((a,b)=>a[1].correct/a[1].total-b[1].correct/b[1].total); if(us.length) weak=`<div class="card"><h3>最近弱點單元</h3><div class="row">${us.map(([u,v])=>`<span class="chip bad">${esc(u)} ${v.correct}/${v.total}</span>`).join("")}</div></div>`;}
   app.innerHTML=`
     <div class="spread"><div class="brand"><div class="logo">自</div><div><h1>${esc(name)} 的練習室</h1><div class="sub">${esc(QUIZ.title)}・${QUIZ.subject}</div></div></div><button class="btn sm ghost" onclick="viewLogin()">切換</button></div>
-    <div class="card"><h3>選擇練習方式</h3><p class="muted small">${QUIZ.questions.length} 題，每題 ${QUIZ.perScore} 分，滿分 ${QUIZ.totalScore} 分。</p><div class="modegrid">
+    <div class="card"><h3>選擇練習方式</h3><p class="muted small">${QUIZ.scoreNote || `${QUIZ.questions.length} 題，每題 ${QUIZ.perScore} 分，滿分 ${QUIZ.totalScore} 分。`}</p><div class="modegrid">
       <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','practice')"><div class="mi">⚡</div><div class="mt">隨手練習</div><div class="md">隨機出題，選完立即看正解與詳解。</div></button>
       <button class="modecard" onclick="startMode('${encodeURIComponent(name)}','full')"><div class="mi">📝</div><div class="mt">正式測驗</div><div class="md">整卷作答，最後一次評分與單元診斷。</div></button>
       <button class="modecard" ${wrong.length?`onclick="startMode('${encodeURIComponent(name)}','wrong')"`:"disabled"}><div class="mi">🎯</div><div class="mt">錯題練習</div><div class="md">${wrong.length?`練最近錯的 ${wrong.length} 題。`:"先完成一次練習就會出現錯題。"}</div></button>
@@ -167,11 +182,12 @@ function renderQuestion(){
   app.innerHTML=`
     <div class="spread"><div><h2>${modeLabel(session.mode)} <span class="muted small">${session.i+1}/${session.ids.length}</span></h2><div class="sub">${esc(q.unit)}</div></div><button class="btn sm ghost" onclick="viewDashboard('${esc(session.name)}')">離開</button></div>
     <div class="card tight">${progressHTML()}</div>
-    <div class="grid"><div class="card col-8"><div class="spread"><div class="row"><span class="chip unit">第 ${q.no} 題</span><span class="chip">${esc(q.unit)}</span></div>${reveal?`<span class="chip ${chosen===q.answer?"good":"bad"}">${chosen===q.answer?"答對":"答錯"}</span>`:""}</div>${sourceHTML(q)}${optionHTML(q, chosen, reveal)}${reveal?`<div class="explain"><b>正解：${q.answer}</b><br>${esc(q.explanation)}</div>`:""}</div>
-      <div class="card col-4"><h3>題號</h3><div class="qnav">${session.ids.map((id,idx)=>{const ans=session.answers[id]; const qq=QMAP[id]; let cls=idx===session.i?"cur":""; if(ans) cls+=" done"; if(session.revealed[id]) cls += ans===qq.answer?" right":" wrong"; return `<button class="${cls}" onclick="jump(${idx})">${id}</button>`;}).join("")}</div><p class="muted small">正式測驗會在交卷後才顯示正解；隨手練習會立即顯示。</p></div></div>
+    <div class="grid"><div class="card col-8"><div class="spread"><div class="row"><span class="chip unit">${esc(qLabel(q))}</span><span class="chip">${esc(q.unit)}</span></div>${reveal && !isSelfRated(q)?`<span class="chip ${chosen===q.answer?"good":"bad"}">${chosen===q.answer?"答對":"答錯"}</span>`:""}</div>${sourceHTML(q)}${optionHTML(q, chosen, reveal)}${reveal && !isSelfRated(q)?`<div class="explain"><b>正解：${q.answer}</b><br>${esc(q.explanation)}</div>`:""}</div>
+      <div class="card col-4"><h3>題號</h3><div class="qnav">${session.ids.map((id,idx)=>{const ans=session.answers[id]; const qq=QMAP[id]; let cls=idx===session.i?"cur":""; if(ans) cls+=" done"; if(session.revealed[id] && !isSelfRated(qq)) cls += ans===qq.answer?" right":" wrong"; return `<button class="${cls}" onclick="jump(${idx})">${esc(qLabel(qq))}</button>`;}).join("")}</div><p class="muted small">正式測驗會在交卷後才顯示正解；隨手練習會立即顯示。</p></div></div>
     <div class="stickybar"><div class="spread"><button class="btn" onclick="prevQ()" ${session.i===0?"disabled":""}>← 上一題</button><div class="row"><button class="btn" onclick="nextQ()" ${session.i===session.ids.length-1?"disabled":""}>下一題 →</button><button class="btn primary" onclick="finishSession()">${Object.keys(session.answers).length===session.ids.length?"交卷 / 結算":"結算目前作答"}</button></div></div></div>`;
 }
 window.choose=function(L){const no=session.ids[session.i]; session.answers[no]=L; if(session.mode!=="full") session.revealed[no]=true; renderQuestion();};
+window.markSelf=function(){const no=session.ids[session.i]; session.answers[no]="SELF"; if(session.mode!=="full") session.revealed[no]=true; renderQuestion();};
 window.jump=function(i){session.i=i;renderQuestion();};
 window.prevQ=function(){if(session.i>0){session.i--;renderQuestion();}};
 window.nextQ=function(){if(session.i<session.ids.length-1){session.i++;renderQuestion();}};
@@ -180,9 +196,11 @@ window.finishSession=function(){
   const att=buildAttempt(session); saveAttempt(att); viewResult(att, true);
 };
 function buildAttempt(s){
-  const wrongIds=[]; let correct=0;
-  s.ids.forEach(no=>{const q=QMAP[no]; if(s.answers[no]===q.answer) correct++; else wrongIds.push(no);});
-  return {quizId:QUIZ.id, quizTitle:QUIZ.title, subject:QUIZ.subject, mode:s.mode, ids:s.ids.slice(), answers:Object.assign({},s.answers), wrongIds, correct, total:s.ids.length, score:scoreOf(correct,s.ids.length), date:now(), durationSec:Math.max(1,Math.round((now()-s.start)/1000))};
+  const wrongIds=[], ungradedIds=[]; let correct=0, gradedTotal=0, weightedEarned=0, weightedMax=0;
+  s.ids.forEach(no=>{const q=QMAP[no]; if(isSelfRated(q)){ungradedIds.push(no); return;} gradedTotal++; const weight=Number(q.weight || 0); weightedMax += weight; if(s.answers[no]===q.answer){correct++; weightedEarned += weight;} else wrongIds.push(no);});
+  const officialScore=QUIZ.scoreScale==="weighted" ? Math.round(weightedEarned*100)/100 : scoreOf(correct,gradedTotal);
+  const score=Math.round(officialScore);
+  return {quizId:QUIZ.id, quizTitle:QUIZ.title, subject:QUIZ.subject, mode:s.mode, ids:s.ids.slice(), answers:Object.assign({},s.answers), wrongIds, ungradedIds, correct, total:s.ids.length, gradedTotal, officialScore, autoMaxScore:QUIZ.scoreScale==="weighted"?Math.round(weightedMax*100)/100:QUIZ.totalScore, score, date:now(), durationSec:Math.max(1,Math.round((now()-s.start)/1000))};
 }
 function saveAttempt(att){
   if(session.saved) return; session.saved=true;
@@ -192,9 +210,9 @@ function saveAttempt(att){
 function viewResult(att, fresh){
   const byUnit=Object.entries(unitStats(att)).sort((a,b)=>a[0].localeCompare(b[0],"zh-Hant"));
   const diag=byUnit.map(([u,v])=>`<tr><td><span class="chip unit">${esc(u)}</span></td><td class="right">${v.correct}/${v.total}</td><td><div class="minibar"><span style="width:${pct(v.correct,v.total)}%;background:${v.correct/v.total>=.7?'var(--good)':v.correct/v.total>=.4?'var(--warn)':'var(--bad)'}"></span></div></td><td class="right">${pct(v.correct,v.total)}%</td></tr>`).join("");
-  const review=att.ids.map(no=>{const q=QMAP[no], ans=att.answers[no]||"未作答", ok=ans===q.answer; return `<div class="card tight"><div class="spread"><div><span class="chip ${ok?'good':'bad'}">第${no}題 ${ok?'✓':'✗'}</span> <span class="chip unit">${esc(q.unit)}</span></div><b>你的答案：${ans}　正解：${q.answer}</b></div>${sourceHTML(q)}<div class="explain">${esc(q.explanation)}</div></div>`;}).join("");
+  const review=att.ids.map(no=>{const q=QMAP[no], ans=att.answers[no]||"未作答", self=isSelfRated(q), ok=ans===q.answer; return `<div class="card tight"><div class="spread"><div><span class="chip ${self?'warn':ok?'good':'bad'}">${esc(qLabel(q))} ${self?'待自評':ok?'✓':'✗'}</span> <span class="chip unit">${esc(q.unit)}</span></div><b>${self?`作答狀態：${ans==='SELF'?'已完成':'未完成'}`:`你的答案：${ans}　正解：${q.answer}`}</b></div>${sourceHTML(q)}<div class="explain">${esc(q.explanation)}</div></div>`;}).join("");
   app.innerHTML=`<div class="spread"><div class="brand"><div class="logo">${att.score}</div><div><h1>練習結果</h1><div class="sub">${modeLabel(att.mode)}・${fmtDur(att.durationSec)}</div></div></div><button class="btn sm ghost" onclick="viewDashboard('${esc(session?.name || loadDB().last || '')}')">回練習室</button></div>
-  <div class="card center"><div class="score">${att.score}</div><h3>答對 ${att.correct}/${att.total} 題</h3><p id="cloudStatus" class="chip ${cloudOn()?"":"warn"}">${fresh && cloudOn()?"雲端上傳中…":"已保存在本機"}</p></div>
+  <div class="card center"><div class="score">${att.officialScore ?? att.score}</div><h3>自動評分答對 ${att.correct}/${att.gradedTotal || att.total} 題${att.autoMaxScore && att.autoMaxScore!==QUIZ.totalScore?`；自動計分滿分 ${att.autoMaxScore}`:''}${(att.ungradedIds||[]).length?`；另有 ${(att.ungradedIds||[]).length} 題非選題待自評`:''}</h3><p id="cloudStatus" class="chip ${cloudOn()?"":"warn"}">${fresh && cloudOn()?"雲端上傳中…":"已保存在本機"}</p></div>
   <div class="card"><h3>單元診斷</h3><table><tr><th>單元</th><th class="right">答對</th><th>比例</th><th class="right">%</th></tr>${diag}</table></div>
   <div class="spread"><h3>逐題解析</h3><button class="btn sm" onclick="window.print()">列印</button></div>${review}`;
 }
